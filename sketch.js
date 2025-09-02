@@ -14,7 +14,7 @@ const BUTTON_M = 24;
 const GRID_SIZE = 64;
 const GRID_W = 64;
 
-const CAP_W = 480;
+const CAP_W = CANVAS_W;
 const CAP_H = 640;
 let capture;
 let captureImage;
@@ -44,6 +44,7 @@ const DEBUG_VIEW_H = 20;
 function preload() {
 }
 function getFn() {
+	console.log(capture);
 	captureFlag = true;
 }
 function startFn() {
@@ -55,11 +56,13 @@ function setup() {
 	capture = createCapture({
 		audio: false,
 		video: {
+			width: 720,
+			height: 1280,
 			facingMode: "user"
 		}
 	}, {flipped:true}
 	);
-	capture.size(CAP_W, CAP_H);
+//	capture.size(CAP_W, capture.height*CAP_W/capture.width);
 	capture.hide();
 
 	getButton = buttonInit('cap', BUTTON_W, BUTTON_H, (CANVAS_W-BUTTON_W)/2, BUTTON_Y+BUTTON_H+BUTTON_M);
@@ -120,14 +123,15 @@ function draw() {
 	joystick.x = (joystick.pos.x-JOYSTICK_X)/JOYSTICK_RANGE;
 	joystick.y = -(joystick.pos.y-JOYSTICK_Y)/JOYSTICK_RANGE;
 	if (mode==MODE_VIDEO){
-		image(capture, 0, 0, CANVAS_W);
+//		image(capture, 0, 0, capture.width*2, capture.height*2);
+		image(capture, 0, 0, CANVAS_W, capture.height*CANVAS_W/capture.width);
 		if (captureFlag){
 			captureFlag = false;
 			captureImage = capture.get();
 			mode = MODE_VIEW;
 		}
 	}else if (mode==MODE_VIEW){
-		image(captureImage, 0, 0, CANVAS_W);
+		image(captureImage, 0, 0, CANVAS_W, capture.height*CANVAS_W/capture.width);
 		targetY += joystick.y;
 		if (captureFlag){
 			captureFlag = false;
@@ -151,7 +155,7 @@ function draw() {
 	text('fps:'+fps, DEBUG_VIEW_X, debugY);
 	debugY += DEBUG_VIEW_H;
 }
-function mousePressed() {
+function touchStarted() {
 	let tp = [];
 	for (let i=0; i<touches.length;i++) {
 		if (tp[i]==null){
@@ -175,10 +179,10 @@ function mousePressed() {
 		joystick.offset.y = joystick.pos.y - ty;
 	}
 }
-function mouseReleased() {
+function touchEnded() {
 	joystick.control = false;
 }
-function mouseDragged() {
+function touchMoved() {
 	let tp = [];
 	for (let i=0; i<touches.length;i++) {
 		if (tp[i]==null){
