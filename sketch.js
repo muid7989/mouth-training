@@ -14,8 +14,8 @@ const BUTTON_M = 24;
 const GRID_SIZE = 64;
 const GRID_W = 64;
 
-const CAP_W = CANVAS_W;
-const CAP_H = 640;
+const CAP_W = 720;
+const CAP_H = 720;
 let capture;
 let captureImage;
 let captureFlag = false;
@@ -25,8 +25,8 @@ const JOYSTICK_Y = GRID_SIZE*15;
 const JOYSTICK_SIZE = GRID_SIZE*3;
 const JOYSTICK_RANGE = GRID_SIZE*2;
 let joystick;
-const EYES_Y = CAP_H*1/3;
-const TEETH_Y = CAP_H*1/2;
+const EYES_Y = CAP_H*1/2;
+const TEETH_Y = CAP_H*3/4;
 
 const MODE_VIDEO = 0;
 const MODE_VIEW = 1;
@@ -56,13 +56,12 @@ function setup() {
 	capture = createCapture({
 		audio: false,
 		video: {
-			width: 720,
-			height: 1280,
+			width: CAP_W,
+			height: CAP_H,
 			facingMode: "user"
 		}
 	}, {flipped:true}
 	);
-//	capture.size(CAP_W, capture.height*CAP_W/capture.width);
 	capture.hide();
 
 	getButton = buttonInit('cap', BUTTON_W, BUTTON_H, (CANVAS_W-BUTTON_W)/2, BUTTON_Y+BUTTON_H+BUTTON_M);
@@ -121,18 +120,22 @@ function draw() {
 		joystick.pos.y = JOYSTICK_Y;
 	}
 	joystick.x = (joystick.pos.x-JOYSTICK_X)/JOYSTICK_RANGE;
-	joystick.y = -(joystick.pos.y-JOYSTICK_Y)/JOYSTICK_RANGE;
+	joystick.y = (joystick.pos.y-JOYSTICK_Y)/JOYSTICK_RANGE;
 	if (mode==MODE_VIDEO){
-//		image(capture, 0, 0, capture.width*2, capture.height*2);
-		image(capture, 0, 0, CANVAS_W, capture.height*CANVAS_W/capture.width);
+		image(capture, 0, GRID_SIZE);
+//		image(capture, 0, 0, CANVAS_W, capture.height*CANVAS_W/capture.width);
 		if (captureFlag){
 			captureFlag = false;
 			captureImage = capture.get();
 			mode = MODE_VIEW;
 		}
 	}else if (mode==MODE_VIEW){
-		image(captureImage, 0, 0, CANVAS_W, capture.height*CANVAS_W/capture.width);
+		image(captureImage, 0, GRID_SIZE);
 		targetY += joystick.y;
+		fill(255);
+		noStroke();
+		textSize(32);
+		text((targetY-TEETH_Y).toFixed(2), GRID_SIZE*13, GRID_SIZE*3);
 		if (captureFlag){
 			captureFlag = false;
 			mode = MODE_VIDEO;
@@ -140,9 +143,9 @@ function draw() {
 	}
 	stroke('blue');
 	strokeWeight(2);
-	line(0, EYES_Y, CANVAS_W, EYES_Y);
-	line(0, TEETH_Y, CANVAS_W, TEETH_Y);
-	line(0, targetY, CANVAS_W, targetY);
+	line(0, EYES_Y, CAP_W, EYES_Y);
+	line(0, TEETH_Y, CAP_W, TEETH_Y);
+	line(0, targetY, CAP_W, targetY);
 	fill(200);
 	noStroke();
 	circle(joystick.pos.x, joystick.pos.y, JOYSTICK_SIZE);
